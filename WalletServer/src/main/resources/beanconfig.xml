@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+
+    <bean class="com.capgemini.service.CustomerServiceImpl" id="service">
+        <constructor-arg ref="dao" />
+    </bean>
+    <bean class="com.capgemini.dao.WalletDAOImpl" name="dao">
+        <constructor-arg ref="map" />
+    </bean>
+    <util:map id="map" key-type="java.lang.String" value-type="com.capgemini.bean.Customer">
+        <entry key="9850276767">
+            <bean class="com.capgemini.bean.Customer">
+                <property name="customerName" value="Sagar" />
+                <property name="mobileNumber" value="9850276767" />
+                <property name="wallet">
+                <bean class="com.capgemini.bean.Wallet">
+                <property name="balance" value="4500000"></property>
+                </bean>
+                </property>
+            </bean>
+        </entry>
+    </util:map>
+</beans>
