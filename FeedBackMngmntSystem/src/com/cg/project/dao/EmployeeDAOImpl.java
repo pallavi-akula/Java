@@ -1,0 +1,270 @@
+package com.cg.project.dao;
+
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
+import com.cg.project.utils.Log4jHTMLayout;
+import com.cg.project.dto.CourseDto;
+import com.cg.project.dto.EmployeeDTO;
+import com.cg.project.dto.FacultySkillDTO;
+import com.cg.project.dto.FeedbackDTO;
+import com.cg.project.utils.DBUtils;
+
+public class EmployeeDAOImpl implements Employee_dao {
+
+EmployeeDTO emp;
+private Connection dbConnection;
+
+
+Logger logger=Logger.getRootLogger();
+public EmployeeDAOImpl()
+{
+PropertyConfigurator.configure("resources//log4j.properties");
+
+}
+	
+
+	
+
+
+{
+	try {
+		dbConnection = DBUtils.getConnection();
+	} catch (ClassNotFoundException e) {
+		e.printStackTrace();
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+}
+
+
+@Override
+public String SearchForRole(EmployeeDTO emp) throws SQLException {
+String role="";
+	try {
+		String selectQuery = "select role from employee_master where employee_id=? and password=?";
+		PreparedStatement selectStatement = dbConnection.prepareStatement(selectQuery);
+		selectStatement.setInt(1, emp.getEmployee_id());
+		selectStatement.setString(2, emp.getPassword());
+		
+		
+		ResultSet rs = selectStatement.executeQuery();
+		while (rs.next()) {
+		    role=rs.getString(1);
+		}
+		
+		//System.out.println(role);
+			
+
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	// TODO Auto-generated method stub
+	return role;	
+}
+
+
+@Override
+public EmployeeDTO addUser(EmployeeDTO emp) throws SQLException {
+	// TODO Auto-generated method stub
+	String insertQuery="insert into employee_master"+"(employee_id,employee_name,password,role)"+"values(?,?,?,?)";
+	
+	try {
+		PreparedStatement ps=dbConnection.prepareStatement(insertQuery);
+		ps.setInt(1, emp.getEmployee_id());
+		ps.setString(2, emp.getEmployee_name());
+		ps.setString(3, emp.getPassword());
+		ps.setString(4, emp.getRole());
+		int row =ps.executeUpdate();
+		System.out.println("Congratulations!!!.....You have successfully registered");
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return emp;
+}
+
+
+@Override
+public String showSkill(FacultySkillDTO faculty) throws SQLException {
+	// TODO Auto-generated method stub
+	String selectQuery="Select skill_set from faculty_skill where faculty_id=?";
+	String skill="";
+	PreparedStatement p=dbConnection.prepareStatement(selectQuery);
+	p.setInt(1, faculty.getFaculty_id());
+	ResultSet rs=p.executeQuery();
+	while(rs.next()){
+		
+		System.out.print(rs.getString(1)+",");
+//		skill.concat(","+rs.getString(1));
+	}
+	System.out.println(skill);
+	return skill;
+}
+
+
+@Override
+public FacultySkillDTO addSkill(FacultySkillDTO faculty) throws SQLException {
+	// TODO Auto-generated method stub
+	String insertQuery="Insert into faculty_skill"+"(faculty_id,skill)"+"values(?,?)";
+	try {
+		PreparedStatement ps=dbConnection.prepareStatement(insertQuery);
+		ps.setInt(1, faculty.getFaculty_id());
+		ps.setString(2, faculty.getSkillset());
+		int row=ps.executeUpdate();
+		System.out.println("Skill added to faculty id:"+faculty.getFaculty_id());
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return null;
+}
+
+
+@Override
+public FacultySkillDTO deleteSkill(FacultySkillDTO faculty) throws SQLException {
+	// TODO Auto-generated method stub
+	String selectQuery="Select * from faculty_skill where faculty_id=?";
+	try {
+		PreparedStatement ps=dbConnection.prepareStatement(selectQuery);
+		ps.setInt(1, faculty.getFaculty_id());
+		ResultSet rs=ps.executeQuery();
+		while(rs.next()) {
+			System.out.println(rs.getString(1)+",");
+		}
+	}
+	catch(Exception e)
+	{
+		e.printStackTrace();
+	}
+	return null;
+}
+
+
+@Override
+public List<FacultySkillDTO> facultyskill() throws Exception {
+	// TODO Auto-generated method stub
+	List<FacultySkillDTO> facultyskill=new ArrayList<>();
+	String sql="Select  * from faculty_skill ";
+	try {
+		PreparedStatement ps=dbConnection.prepareStatement(sql);
+		
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			int fid= rs.getInt("Faculty_Id");
+			String  skillset= rs.getString("Skill_Set");
+			FacultySkillDTO f=new FacultySkillDTO();
+			f.setFaculty_id(fid);
+			f.setSkillset(skillset);
+			
+			facultyskill.add(f);
+			
+			
+		}
+		return facultyskill;
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return null;
+}
+
+
+@Override
+public CourseDto AddCourse(CourseDto course) throws SQLException {
+	// TODO Auto-generated method stub
+	String selectQuery = "insert into course_master" + " (course_id,course_name,no_of_days)" + "values (?,?,?)";
+	try {
+
+		PreparedStatement selectStatement = dbConnection.prepareStatement(selectQuery);
+		selectStatement.setInt(1, course.getCourse_id());
+		selectStatement.setString(2, course.getCourse_name());
+		selectStatement.setInt(3, course.getNo_of_days());
+		selectStatement.executeUpdate();
+		System.out.println("Your Course Have Successfully added........");
+
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+	return course;
+}
+
+
+@Override
+public CourseDto DeleteCourse(CourseDto course) throws SQLException {
+	// TODO Auto-generated method stub
+	String selectQuery = "delete from course_master" +" where course_id=?";
+	try{
+		PreparedStatement selectStatement = dbConnection.prepareStatement(selectQuery);
+		selectStatement.setInt(1, course.getCourse_id());
+		selectStatement.executeQuery();
+		System.out.println("Your Course Have successfully Deleted........");
+	}
+	catch(SQLException e){
+		e.printStackTrace();
+	}
+	return course;
+}
+
+
+@Override
+public CourseDto SearchCourse(CourseDto course) throws SQLException {
+	// TODO Auto-generated method stub
+	String selectQuery = "select * from course_master" +" where course_id=?";
+	try{
+		PreparedStatement selectStatement = dbConnection.prepareStatement(selectQuery);
+		selectStatement.setInt(1, course.getCourse_id());
+		ResultSet rs= selectStatement.executeQuery();
+while(rs.next()){
+course.setCourse_id(rs.getInt(1));
+course.setCourse_name(rs.getString(2));
+course.setNo_of_days(rs.getInt(3));
+}
+
+	}
+	catch(SQLException e){
+		e.printStackTrace();
+	}
+	return course;
+}
+
+
+@Override
+public FeedbackDTO addFeedback(FeedbackDTO feedback) throws SQLException {
+	// TODO Auto-generated method stub
+	String sql="insert into feedback_master"+"values(?,?,?,?,?,?,?,?,?)";
+	try {
+		PreparedStatement ps=dbConnection.prepareStatement(sql);
+		ps.setInt(1, feedback.getTraining_code());
+		ps.setInt(2, feedback.getParticipant_id());
+		ps.setInt(3, feedback.getFb_prs_comm());
+		ps.setInt(4, feedback.getFb_prs_dbts());
+		ps.setInt(5, feedback.getFb_tm());
+		ps.setInt(6, feedback.getFb_hnd_out());
+		ps.setInt(7, feedback.getFb_hw_sw_ntwrk());
+		ps.setString(8, feedback.getComments());
+		ps.setString(9, feedback.getSuggestion());
+		int rows=ps.executeUpdate(sql);
+		if(rows>0)
+			System.out.println("feedback entered");
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	return feedback;
+}
+
+
+
+}
